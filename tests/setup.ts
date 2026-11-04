@@ -12,6 +12,11 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () {
     this.removeAttribute('open');
   };
+  Object.defineProperty(URL, 'createObjectURL', {
+    configurable: true,
+    value: vi.fn(() => 'blob:sample-photo'),
+  });
+  Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
 });
 afterEach(() => {
   cleanup();

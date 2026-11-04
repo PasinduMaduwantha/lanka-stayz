@@ -1,6 +1,6 @@
 # Lanka Stayz
 
-A Sri Lankan accommodation discovery prototype for the Xero Lanka / Lanka Stayz Web Developer Practical Technical Assessment. The design uses familiar booking-site patterns—prominent destination/date search, a filter sidebar, comparison-friendly results and a clear request flow—while retaining original Lanka Stayz branding.
+A Sri Lankan accommodation discovery prototype for the Xero Lanka / Lanka Stayz Web Developer Practical Technical Assessment. The approved tropical editorial design uses warm ivory, deep teal and coral, expressive serif headings, an arched Sri Lankan hero photograph and original branding. Familiar search/filter behaviours support a distinctive Lanka Stayz experience.
 
 Live demo: **https://lanka-stayz-island-escapes.resolutedace.chatgpt.site**
 
@@ -8,7 +8,7 @@ Live demo: **https://lanka-stayz-island-escapes.resolutedace.chatgpt.site**
 
 **No.** Task 4 explicitly states: “A real payment gateway, live availability system and backend reservation database are not required.” It asks for required-field validation and a confirmation after a sample booking submission. The brief also calls this a prototype, not a complete commercial platform, and excludes accounts and reservation management.
 
-This project implements that scope in the browser. It validates contact details, dates and capacity, calculates an estimate and displays a labelled demo confirmation. It does not send an email, check inventory, store a booking or claim that a real reservation exists. A backend would become necessary for real availability, durable reservations, host administration, email delivery and payments. The submit handler is the point where a future API integration would be added.
+This project implements that scope in the browser. It validates contact details, dates and capacity, calculates an estimate and displays a labelled demo confirmation. It does not send an email, check inventory, durably store a booking or claim that a real reservation exists. A separate, explicitly labelled host studio prototype demonstrates session-only listing drafts and request responses. A backend would become necessary for real availability, durable reservations, host administration, email delivery and payments. The submit handler is the point where a future API integration would be added.
 
 ## Run locally
 
@@ -81,10 +81,10 @@ Dates are used for request planning and total estimates, **not live availability
 1. Read the complete assignment and mapped each task and deliverable into the prototype scope.
 2. Confirmed that a frontend implementation satisfies the explicit database, payment and inventory exemptions.
 3. Selected React, TypeScript and Vite; verified the current Node lifecycle and pinned Node 26.13.0 LTS.
-4. Created an original villa / leaf / wave SVG mark. Updated it to the blue, white and warm-yellow visual system.
+4. Created an original villa / leaf / wave SVG mark, now using deep teal, warm ivory and muted gold to match the approved visual identity.
 5. Structured six fictional properties with locations, nightly prices, capacity, descriptions, facilities and three photos each.
 6. Built the homepage, original branding, shared navigation, footer, About and Contact pages.
-7. Reworked the design toward Booking.com-style booking UX: navy header, strong search, yellow search outline, destination tiles, filter sidebar and horizontal result cards. No Booking.com logo, proprietary UI assets or backend are used.
+7. Reworked the design toward Booking.com-style booking UX: destination/date search, destination tiles, filters and comparison-friendly result cards. The subsequent approved tropical editorial theme replaces the blue/yellow styling with original ivory, teal and coral layouts. No Booking.com logo, proprietary UI assets or backend are used.
 8. Researched real Sri Lankan photographs on Wikimedia Commons; checked reusable licences; downloaded assets and recorded creators, original subjects, sources and display modifications.
 9. Built destination and guest search, nightly budget, type/facility filters, sorting and empty-result recovery using a pure catalogue selector.
 10. Added optional saved property IDs in local storage with corrupt/blocked-storage recovery. No guest details are stored there.
@@ -96,6 +96,10 @@ Dates are used for request planning and total estimates, **not live availability
 16. Wrote automated business-rule, catalogue, React interaction and local asset tests. Tests caught a route parsing regression during the redesign; it was corrected before delivery.
 17. Added `vercel.json`, `.vercelignore`, GitHub CI and reproducible install instructions. The preview platform is optional; the app has no dependency on Sites APIs.
 18. Formatted source, ran tests and the production build, performed browser checks, and recorded actual results in `TESTING.md`.
+19. Applied the user-approved tropical editorial concept to every page: ivory surfaces, teal controls, coral accents, serif headings, an arched hero image and softer property cards.
+20. Added a three-property comparison shortlist, side-by-side comparison view and empty/limit states.
+21. Built the separate host studio prototype: session-only draft creation/editing, local photo preview, unconnected Google-access disclosure and request inbox.
+22. Linked validated demo requests to a traveller session-request page and host accept/decline simulation, omitting contact information from those records. Added regression tests and fixed narrow-phone header spacing.
 
 ## Project structure
 
@@ -104,15 +108,19 @@ src/
   main.tsx          React mount point
   App.tsx           Pages, search, filters, result cards and application state
   BookingModal.tsx  Native dialog wrapper and booking request flow
+  Comparison.tsx    Side-by-side comparison of up to three stays
+  OwnerStudio.tsx   Separate session-only host studio and request-status prototype
   catalogue.ts      Pure combined filtering and sorting logic
   booking.mjs       Pure calendar, stay and contact validation
   data.ts           Typed fictional property catalogue
   types.ts          Shared stay type
-  styles.css        Visual system and responsive layouts
+  styles.css        Shared layout and component foundations
+  tropical.css      Approved tropical editorial theme and new module layouts
 tests/
   booking.test.mjs  Date, capacity and guest contact rules
   catalogue.test.ts Filtering, sorting and catalogue immutability
   app.test.tsx      Rendered React interactions and booking flow
+  studio.test.tsx   Comparison, host drafts, request handling and prototype disclosures
   assets.test.ts    Local photo and deployment config checks
   setup.ts         DOM test setup; native dialog methods are mocked in jsdom
 public/
@@ -125,7 +133,19 @@ README.md
 TESTING.md
 ```
 
-Routes use hashes: `#/`, `#/explore`, `#/stays/palm-house`, `#/about`, `#/contact`. This allows direct detail links and reloads on static hosts without rewrite rules. A commercial implementation should use a route library and server rendering for property SEO.
+Routes use hashes: `#/`, `#/explore`, `#/stays/palm-house`, `#/about`, `#/contact`, `#/compare`, `#/owner`, `#/requests`. This allows direct detail links and reloads on static hosts without rewrite rules. A commercial implementation should use a route library and server rendering for property SEO.
+
+## Approved comparison and host studio additions
+
+The comparison route (`#/compare`) keeps up to three selected properties together with nightly price, capacity, bedrooms, amenities and illustrative review scores. Selection survives navigation within the app session and remains independent of search filters.
+
+The host studio (`#/owner`) is the **UI prototype option requested by the candidate**, not authenticated host administration. It supports creating/editing session-only property drafts, validating name/rate/capacity, selecting a local photo preview and examining the current session's demo request inbox. Photo previews are never uploaded or attached to drafts; temporary object URLs are released on close. Drafts stay in React memory while navigating the app and disappear on reload. They do not publish into traveller results.
+
+After a traveller submits a valid demo request, its non-contact summary appears in `#/requests` and the prototype host inbox. Accepting/declining it changes the status within the same browser session only. This demonstrates the proposed end-to-end interaction without inventing server persistence or secure owner permissions.
+
+**Google sign-in is not connected.** The button explicitly explains this. Real Google OAuth, owner-specific access, durable listings, photo storage and requests received across devices require backend configuration. A managed service such as Supabase could provide Auth, Database and Storage; it has not been configured or represented as working here. The original assessment still does not require those production services.
+
+Do not present the prototype inbox or draft editor as a secure commercial host portal. They are a separately labelled optional assessment extension, with explicit limitations in the UI.
 
 ## Put it on GitHub
 
@@ -163,7 +183,7 @@ The current UI uses photographs of **real Sri Lankan places**: southern coastal 
 
 Only Wikimedia thumbnail resizing and CSS display cropping were applied. Each photograph retains its original CC licence, including attribution/share-alike where applicable. Keep the credits with redistributed assets. For a real platform, replace this inspiration collection with approved photos of each actual property.
 
-The original logo uses a villa roof for hospitality, a leaf for tropical nature and a wave for the island. SVG keeps it sharp at favicon and header sizes. Lucide icons use the ISC licence. DM Sans and Manrope load through Google Fonts with system fallbacks; all photos are local. The `.example` contact address is demonstration-only. Social links lead to the public platforms; no official profiles have been invented.
+The current theme uses warm ivory, deep teal and coral. The original logo uses a villa roof for hospitality, a leaf for tropical nature and a wave for the island. SVG keeps it sharp at favicon and header sizes. Lucide icons use the ISC licence. DM Sans and Manrope load through Google Fonts with system fallbacks; all photos are local. The `.example` contact address is demonstration-only. Social links lead to the public platforms; no official profiles have been invented.
 
 ## Testing, accessibility and privacy
 
@@ -171,7 +191,7 @@ See **[TESTING.md](TESTING.md)** for cases, results, browser checks and limits. 
 
 Dialogs use native `<dialog>` semantics and focus management. Inputs have visible labels, favourites expose pressed state, errors/status messages are announced, keyboard focus is visible and reduced motion is respected. These measures are not a formal accessibility certification.
 
-No analytics, cookies, login or payment collection are included. Local storage contains saved **property IDs only**. Guest details live in component memory until the booking dialog closes. Fonts make ordinary external requests to Google; photos are bundled locally. A production version needs a privacy notice and a considered consent/data-retention policy.
+No analytics, cookies, login or payment collection are included. Local storage contains saved **property IDs only**. Guest contact details live in component memory until the booking dialog closes. Session request records contain property ID, dates, guest count, estimate and status only; no name, email or phone. They reset on page reload. Fonts make ordinary external requests to Google; photos are bundled locally. A production version needs a privacy notice and a considered consent/data-retention policy.
 
 ## Development summary and commercial improvements
 

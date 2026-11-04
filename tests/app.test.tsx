@@ -17,7 +17,7 @@ describe('Application interactions', () => {
   it('renders a complete homepage and six property cards', () => {
     render(<App />);
     expect(screen.getAllByRole('article')).toHaveLength(6);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Find your perfect stay');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Somewhere');
     expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
   });
   it('filters destination using the search control', async () => {

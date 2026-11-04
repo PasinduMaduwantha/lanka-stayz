@@ -2,15 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, Check, ArrowRight, ArrowUpRight, Minus, Plus } from 'lucide-react';
 import { money, type Property } from './data';
 import { todayISO, nightsBetween, validateStay, validateGuest } from './booking.mjs';
-import type { Stay } from './types';
+import type { Stay, DemoRequest } from './types';
 export function Dialog({
   children,
   onClose,
   className = '',
+  label,
 }: {
   children: React.ReactNode;
   onClose: () => void;
   className?: string;
+  label?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -29,7 +31,7 @@ export function Dialog({
     <dialog
       ref={ref}
       className={className}
-      aria-label={className === 'lightbox' ? 'Property photograph' : 'Booking request'}
+      aria-label={label || (className === 'lightbox' ? 'Property photograph' : 'Booking request')}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
@@ -50,11 +52,13 @@ export function BookingModal({
   stay,
   onClose,
   onStay,
+  onRequest,
 }: {
   property: Property;
   stay: Stay;
   onClose: () => void;
   onStay: (s: Stay) => void;
+  onRequest?: (request: DemoRequest) => void;
 }) {
   const [values, setValues] = useState({ ...stay, name: '', email: '', phone: '' });
   const [error, setError] = useState('');
@@ -72,7 +76,17 @@ export function BookingModal({
       return;
     }
     onStay({ checkIn: values.checkIn, checkOut: values.checkOut, guests: values.guests });
-    setReference(`LS-DEMO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`);
+    const id = `LS-DEMO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    setReference(id);
+    onRequest?.({
+      id,
+      propertyId: property.id,
+      checkIn: values.checkIn,
+      checkOut: values.checkOut,
+      guests: Number(values.guests),
+      total: nightsBetween(values.checkIn, values.checkOut) * property.price,
+      status: 'Pending response',
+    });
   };
   return (
     <Dialog onClose={onClose} className="booking-modal">
@@ -103,12 +117,17 @@ export function BookingModal({
             <small>Demo reference: {reference}</small>
           </div>
           <p className="muted">
-            This is a sample confirmation. Nothing was sent or stored, no email will be delivered,
-            and no reservation has been made.
+            This is a sample confirmation. Nothing was sent to a host or saved to a server, no email
+            will be delivered, and no reservation has been made.
           </p>
           <button className="button full" onClick={onClose}>
             Keep exploring <ArrowRight size={17} />
           </button>
+          {onRequest && (
+            <a className="confirmation-request-link" href="#/requests" onClick={onClose}>
+              View my session requests <ArrowRight size={15} />
+            </a>
+          )}
         </div>
       ) : (
         <>

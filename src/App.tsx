@@ -8,6 +8,9 @@ import {
   Check,
   ChevronLeft,
   Compass,
+  Columns3,
+  Leaf,
+  Sun,
   Heart,
   MapPin,
   Menu,
@@ -21,8 +24,11 @@ import { destinations, heroImage, money, properties, type Property } from './dat
 import { todayISO, validateStay, nightsBetween } from './booking.mjs';
 import { selectProperties } from './catalogue';
 import { BookingModal, Dialog } from './BookingModal';
-import type { Stay } from './types';
+import { Comparison } from './Comparison';
+import { OwnerStudio, TravellerRequests } from './OwnerStudio';
+import type { Stay, DemoRequest } from './types';
 import './styles.css';
+import './tropical.css';
 
 const initialStay: Stay = { checkIn: '', checkOut: '', guests: '2' };
 const allTypes = [...new Set(properties.map((p) => p.type))];
@@ -34,7 +40,7 @@ function Brand() {
       <img src="/logo.svg" width="43" height="43" alt="" />
       <span>
         Lanka<span>Stayz</span>
-        <small>YOUR ISLAND, YOUR STAY.</small>
+        <small>STAY A LITTLE CLOSER.</small>
       </span>
     </a>
   );
@@ -139,11 +145,15 @@ export function PropertyCard({
   saved,
   onSave,
   list = false,
+  compared = false,
+  onCompare,
 }: {
   property: Property;
   saved: boolean;
   onSave: () => void;
   list?: boolean;
+  compared?: boolean;
+  onCompare?: () => void;
 }) {
   return (
     <article className={`property-card ${list ? 'list-card' : ''}`} aria-label={p.name}>
@@ -198,6 +208,12 @@ export function PropertyCard({
           <strong>Exceptional</strong>
           <small>{p.reviews} sample reviews</small>
         </div>
+        {onCompare && (
+          <label className="property-compare">
+            <input type="checkbox" checked={compared} onChange={onCompare} />
+            Compare this stay
+          </label>
+        )}
       </div>
       <div className="card-price">
         <span className="price-label">From, per night</span>
@@ -319,6 +335,9 @@ export default function App() {
   const [sort, setSort] = useState('recommended');
   const [savedOnly, setSavedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [compared, setCompared] = useState<string[]>([]);
+  const [compareNotice, setCompareNotice] = useState('');
+  const [requests, setRequests] = useState<DemoRequest[]>([]);
   const [saved, setSaved] = useState<string[]>(() => {
     try {
       const data = JSON.parse(localStorage.getItem('lanka-saved') || '[]');
@@ -355,9 +374,20 @@ export default function App() {
     }
   }, [saved]);
   useEffect(() => {
-    document.title = `${property?.name || (explore ? 'Explore stays' : home ? 'Find your perfect stay in Sri Lanka' : route === '#/about' ? 'About us' : route === '#/contact' ? 'Contact' : 'Page not found')} | Lanka Stayz`;
+    document.title = `${property?.name || (explore ? 'Explore stays' : home ? 'Find your perfect stay in Sri Lanka' : route === '#/about' ? 'About us' : route === '#/contact' ? 'Contact' : route === '#/compare' ? 'Compare stays' : route === '#/owner' ? 'Host studio preview' : route === '#/requests' ? 'My session requests' : 'Page not found')} | Lanka Stayz`;
   }, [route, property, explore, home]);
   const onSave = (id: string) => setSaved((old) => toggle(old, id));
+  const onCompare = (id: string) => {
+    if (!compared.includes(id) && compared.length >= 3) {
+      setCompareNotice('Compare up to three stays. Remove one from your shortlist to add another.');
+      return;
+    }
+    setCompared((current) => toggle(current, id));
+    setCompareNotice('');
+  };
+  const onRequest = (request: DemoRequest) => setRequests((current) => [request, ...current]);
+  const onRequestStatus = (id: string, status: DemoRequest['status']) =>
+    setRequests((current) => current.map((r) => (r.id === id ? { ...r, status } : r)));
   const reset = () => {
     setTypes([]);
     setMaxPrice(50000);
@@ -410,8 +440,23 @@ export default function App() {
       <header>
         <div className="container header-inner">
           <Brand />
+          <nav aria-label="Main navigation" className={menu ? 'nav-open' : ''}>
+            {[
+              ['Home', '#/'],
+              ['Explore Stays', '#/explore'],
+              ['Compare', '#/compare'],
+              ['About Us', '#/about'],
+              ['Contact', '#/contact'],
+            ].map(([label, href]) => (
+              <a key={href} href={href} aria-current={route === href ? 'page' : undefined}>
+                {label}
+                {label === 'Compare' && compared.length > 0 && (
+                  <span className="nav-count">{compared.length}</span>
+                )}
+              </a>
+            ))}
+          </nav>
           <div className="header-actions">
-            <span className="currency">LKR · Sri Lanka</span>
             <button
               className="saved-nav"
               onClick={() => {
@@ -425,12 +470,12 @@ export default function App() {
               }}
               aria-label={`Saved stays, ${saved.length} saved`}
             >
-              <Heart size={19} />
+              <Heart size={18} />
               <span>Saved stays</span>
               {saved.length > 0 && <b>{saved.length}</b>}
             </button>
-            <a className="header-help" href="#/contact">
-              Need a hand? <ArrowUpRight size={15} />
+            <a className="header-host" href="#/owner">
+              Host your space <ArrowUpRight size={16} />
             </a>
             <button
               className="menu-button"
@@ -442,56 +487,30 @@ export default function App() {
             </button>
           </div>
         </div>
-        <div className="container nav-container">
-          <nav aria-label="Main navigation" className={menu ? 'nav-open' : ''}>
-            {[
-              ['Home', '#/'],
-              ['Explore Stays', '#/explore'],
-              ['About Us', '#/about'],
-              ['Contact', '#/contact'],
-            ].map(([label, href]) => (
-              <a key={href} href={href} aria-current={route === href ? 'page' : undefined}>
-                {label === 'Explore Stays' && <BedDouble size={17} />}
-                {label}
-              </a>
-            ))}
-          </nav>
-          <span className="nav-note">
-            <ShieldCheck size={14} /> No account. Just your next adventure.
-          </span>
-        </div>
       </header>
       <main id="main" tabIndex={-1}>
+        {compareNotice && (
+          <p className="container compare-notice" role="alert">
+            {compareNotice}
+          </p>
+        )}
+        {route === '#/compare' && (
+          <Comparison
+            selected={properties.filter((p) => compared.includes(p.id))}
+            remove={onCompare}
+          />
+        )}
+        <div hidden={route !== '#/owner'}>
+          <OwnerStudio
+            requests={requests}
+            onStatus={onRequestStatus}
+            active={route === '#/owner'}
+          />
+        </div>
+        {route === '#/requests' && <TravellerRequests requests={requests} />}
         {home && (
           <>
-            <section className="hero">
-              <img
-                src={heroImage}
-                className="hero-image"
-                alt="Sri Lankan accommodation and tropical landscape inspiration"
-                fetchPriority="high"
-              />
-              <div className="hero-shade" />
-              <div className="container hero-content">
-                <span className="eyebrow light">
-                  ONE BEAUTIFUL ISLAND. COUNTLESS POSSIBILITIES.
-                </span>
-                <h1>
-                  Find your perfect stay
-                  <br />
-                  in <em>Sri Lanka.</em>
-                </h1>
-                <p>
-                  Beachside mornings, misty hills and a place that feels like you.
-                  <br />
-                  Discover villas, homes and hideaways across the island.
-                </p>
-                <a href="#/explore" className="hero-link">
-                  Let’s find your somewhere <ArrowRight size={18} />
-                </a>
-              </div>
-              <span className="hero-photo-note">Sri Lanka, waiting to be explored.</span>
-            </section>
+            <HomeHero />
             <div className="container search-wrap">
               <SearchForm {...searchProps} />
             </div>
@@ -576,6 +595,8 @@ export default function App() {
                     key={p.id}
                     saved={saved.includes(p.id)}
                     onSave={() => onSave(p.id)}
+                    compared={compared.includes(p.id)}
+                    onCompare={() => onCompare(p.id)}
                   />
                 ))}
               </div>
@@ -735,6 +756,8 @@ export default function App() {
                       key={p.id}
                       saved={saved.includes(p.id)}
                       onSave={() => onSave(p.id)}
+                      compared={compared.includes(p.id)}
+                      onCompare={() => onCompare(p.id)}
                       list
                     />
                   ))}
@@ -759,6 +782,18 @@ export default function App() {
                     </button>
                   </div>
                 )}
+                <div className="comparison-tray">
+                  <span>
+                    <Columns3 size={18} />
+                    <strong>
+                      {compared.length} {compared.length === 1 ? 'stay' : 'stays'}
+                    </strong>{' '}
+                    on your shortlist
+                  </span>
+                  <a className="outline-button" href="#/compare">
+                    Compare side by side <ArrowRight size={16} />
+                  </a>
+                </div>
                 <p className="results-fineprint">
                   All properties, ratings and prices are fictional assessment examples. Photos show
                   Sri Lankan accommodation or destination inspiration. No affiliation with
@@ -857,16 +892,19 @@ export default function App() {
             </div>
           </section>
         )}
-        {!home && !explore && !property && !['#/about', '#/contact'].includes(route) && (
-          <section className="container empty-state">
-            <Compass size={45} />
-            <h1>A little off the map.</h1>
-            <p>That page couldn’t be found. Your next escape is still waiting.</p>
-            <a className="button" href="#/explore">
-              Explore stays <ArrowRight size={17} />
-            </a>
-          </section>
-        )}
+        {!home &&
+          !explore &&
+          !property &&
+          !['#/about', '#/contact', '#/compare', '#/owner', '#/requests'].includes(route) && (
+            <section className="container empty-state">
+              <Compass size={45} />
+              <h1>A little off the map.</h1>
+              <p>That page couldn’t be found. Your next escape is still waiting.</p>
+              <a className="button" href="#/explore">
+                Explore stays <ArrowRight size={17} />
+              </a>
+            </section>
+          )}
       </main>
       <footer>
         <div className="container footer-main">
@@ -891,6 +929,8 @@ export default function App() {
             <a href="#/explore">Explore stays</a>
             <a href="#/about">About Lanka Stayz</a>
             <a href="#/contact">Contact us</a>
+            <a href="#/requests">My session requests</a>
+            <a href="#/owner">Host studio preview</a>
             <a href="/images/srilanka/credits.html" target="_blank" rel="noreferrer">
               Photo credits
             </a>
@@ -920,6 +960,7 @@ export default function App() {
           property={booking}
           stay={stay}
           onStay={setStay}
+          onRequest={onRequest}
           onClose={() => setBooking(null)}
         />
       )}
@@ -930,6 +971,49 @@ export default function App() {
         </Dialog>
       )}
     </>
+  );
+}
+
+function HomeHero() {
+  return (
+    <section className="container editorial-hero">
+      <div className="editorial-hero-copy">
+        <span className="eyebrow">SRI LANKA, AT YOUR OWN PACE</span>
+        <h1>
+          Somewhere
+          <br />
+          you can <em>exhale.</em>
+        </h1>
+        <p>
+          Salt on your skin. Tea in the hills.
+          <br />A place that feels a little more like you.
+        </p>
+        <a className="button" href="#/explore">
+          Find your kind of stay <ArrowRight size={17} />
+        </a>
+        <span className="editorial-hero-foot">
+          <i />
+          Thoughtful places. Beautifully simple planning.
+        </span>
+      </div>
+      <div className="editorial-hero-photo">
+        <img
+          src={heroImage}
+          alt="Sri Lankan seaside pool and tropical garden inspiration"
+          fetchPriority="high"
+        />
+        <div>
+          <span>SLOW MORNINGS, SOUTHERN SHORES</span>
+          <strong>On island time.</strong>
+        </div>
+        <small>Sri Lanka · photo inspiration</small>
+      </div>
+      <div className="editorial-seal">
+        AYUBOWAN
+        <Sun size={25} />
+        <span>MAKE YOURSELF AT HOME</span>
+      </div>
+    </section>
   );
 }
 

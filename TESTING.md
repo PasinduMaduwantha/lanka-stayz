@@ -20,6 +20,10 @@ Run `npm ci` followed by `npm test`. The suite has two layers: Node's test runne
 | Booking interaction | Required contact fields, three-night estimate, successful demo receipt, same-day rejection, bad phone, no personal-data persistence |
 | Dialog/navigation | Photo open/close, close callback, scroll lock, skip-link focus, menu expanded state |
 | Assets/deployment | Three distinct local Sri Lankan images for each property, hero existence, source/creator/licence for displayed photos, Vercel settings, ignored generated directories |
+| Comparison | Add/remove selections, empty route, no more than three unique properties, navigation preserves shortlist |
+| Host studio | Explicit Google-not-connected disclosure, add/edit/cancel drafts, minimum name validation, session navigation retention, close editor on browser navigation |
+| Photo preview | Supported local image preview, object URL release on close, reject unsupported file types; no upload |
+| Session requests | Non-contact request callback, estimate/status display, accept/decline callbacks, handled requests cannot be accepted twice |
 
 The test clock for sample requests uses future fixed dates (December 2028) and explicit dates for domain rule tests. Update those UI fixtures if maintaining this assessment after 2028.
 
@@ -38,12 +42,13 @@ The app was exercised in the available Chromium-based in-app browser, independen
 
 Final results:
 
-- **80 automated tests passed:** 24 Node domain tests plus 56 Vitest catalogue/component/asset tests across three files.
-- **Production build passed:** strict TypeScript check and Vite build; application JavaScript approximately 82.2 kB gzip and CSS approximately 7.7 kB gzip, excluding images and fonts.
+- **97 automated tests passed:** 24 Node domain tests plus 73 Vitest catalogue/component/asset/studio tests across four files.
+- **Production build passed:** strict TypeScript check and Vite build; application JavaScript approximately 86.2 kB gzip and CSS approximately 13.8 kB gzip, excluding images and fonts.
 - **Production dependency audit:** zero known vulnerabilities reported by `npm audit --omit=dev`. The full installation audit also reported zero known vulnerabilities after test-tool installation.
 - **Browser:** completed destination-to-request flow, same-day rejection, correct LKR 55,500 three-night Ella confirmation, gallery Escape dismissal, facility/type filters, tablet filter panel, mobile menu, About and Contact FAQ.
 - **Responsive widths checked:** 320, 390, 768, 1024 and 1440 CSS pixels. Reported document widths did not exceed their corresponding viewport widths; screenshots were reviewed. These checks do not replace testing on physical devices.
 - **Assets:** every displayed photograph has a local file plus creator/source/reusable-licence metadata. Credits page contains no blank records.
+- **Approved-theme browser checks:** two-property comparison; Palm House three-night request at LKR 126,000; traveller request page; host acceptance; create a listing draft; Google button disclosure; narrow-phone header and home layout without overflow. Host drafts and requests are explicitly session-only and do not represent a secure backend service.
 
 GitHub Actions and a personal Vercel deployment are prepared, not executed in the user's accounts.
 
@@ -54,6 +59,9 @@ GitHub Actions and a personal Vercel deployment are prepared, not executed in th
 - Mobile filters were moved to an accessible labelled panel with a Done control so they are reachable without scrolling past every result.
 - Singular bedroom/bathroom wording was corrected for one-room stays.
 - Development watcher ignores portable tools and output archives to avoid unrelated reloads.
+- Decorative Google-letter text was hidden from assistive technology so the button has the correct accessible name.
+- Browser navigation away from an open listing editor now closes the native dialog and releases its scroll lock.
+- The narrow-phone header was adjusted after a 320px browser check found overlap/overflow.
 
 ## Verification limits
 
