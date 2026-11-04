@@ -1,0 +1,5 @@
+.tools
+outputs
+.git
+.openai
+node_modules

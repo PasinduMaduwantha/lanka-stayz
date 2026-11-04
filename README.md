@@ -1,156 +1,188 @@
 # Lanka Stayz
 
-A responsive accommodation discovery and booking-request prototype for the Xero Lanka / Lanka Stayz Web Developer Practical Technical Assessment.
+A Sri Lankan accommodation discovery prototype for the Xero Lanka / Lanka Stayz Web Developer Practical Technical Assessment. The design uses familiar booking-site patterns—prominent destination/date search, a filter sidebar, comparison-friendly results and a clear request flow—while retaining original Lanka Stayz branding.
 
-**Backend decision: no backend is needed for this assessment.** Task 4 explicitly states: “A real payment gateway, live availability system and backend reservation database are not required.” This implementation validates a request in the browser and displays a demo confirmation. It never sends a request to a host, charges a guest, or claims a reservation exists.
+Live demo: **https://lanka-stayz-island-escapes.resolutedace.chatgpt.site**
+
+## Does this assignment require a backend?
+
+**No.** Task 4 explicitly states: “A real payment gateway, live availability system and backend reservation database are not required.” It asks for required-field validation and a confirmation after a sample booking submission. The brief also calls this a prototype, not a complete commercial platform, and excludes accounts and reservation management.
+
+This project implements that scope in the browser. It validates contact details, dates and capacity, calculates an estimate and displays a labelled demo confirmation. It does not send an email, check inventory, store a booking or claim that a real reservation exists. A backend would become necessary for real availability, durable reservations, host administration, email delivery and payments. The submit handler is the point where a future API integration would be added.
 
 ## Run locally
 
-Install **Node.js 26.13.0 LTS** (the version in `.nvmrc`) and npm. With nvm installed, run `nvm install 26.13.0` and `nvm use 26.13.0`. Windows users can use nvm-windows or the official Node installer.
+Use **Node.js 26.13.0 LTS** (pinned in `.nvmrc`) and npm. With nvm / nvm-windows installed:
 
 ```sh
+nvm install 26.13.0
+nvm use 26.13.0
 npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite (normally `http://localhost:5173`). No environment variables, credentials, database, or API keys are required.
+Open the URL printed by Vite, normally `http://localhost:5173`. No environment variables, credentials, API keys or database are needed.
 
 ```sh
-npm test          # Booking and contact validation tests
-npm run build    # TypeScript checking and production build
-npm run preview  # Serve the production build locally
-npm audit        # Check the locked dependency tree for known advisories
+npm test          # All domain, catalogue, component and asset tests
+npm run test:unit # Pure booking rules, using Node's test runner
+npm run test:ui   # Vitest: catalogue, React interactions and asset/config checks
+npm run build    # Strict TypeScript check and optimized static build
+npm run preview  # Preview the production dist/ build
+npm run format   # Consistent source and test formatting
+npm audit        # Current known dependency advisories
 ```
 
-The portable runtime in `.tools/` is a local development convenience only. It is ignored by Git and is not part of the submission or deployed site.
+The ignored `.tools/` directory is only a portable runtime used on the original development machine. It must not be committed, uploaded to Vercel, or included in the submission ZIP. Install Node normally on other machines.
 
-## Technology choices
+## Tech stack
 
-| Technology | Purpose |
+| Tool | Reason |
 | --- | --- |
-| React | Reusable UI and explicit state for searching, saved stays, booking and dialogs |
-| TypeScript | Typed property data and component contracts |
-| Vite | Local development and optimized static production output |
-| CSS | Original responsive design without a UI framework; grid, flexbox and breakpoints |
+| React 19 + TypeScript | Typed data and reusable search, listing, detail and dialog components |
+| Vite 8 | Fast local development and optimized static output |
+| Plain CSS | Original responsive design without a template or UI framework |
 | Lucide React | Consistent interface icons |
-| Original SVG | Custom villa / leaf / wave logo and favicon |
-| Node.js 26.13.0 LTS + npm | Development, building and tests; not a production application server |
-| Node's built-in test runner | Tests for date, capacity and contact validation |
-| Browser APIs | Accessible native dialogs, date inputs and optional saved-stay local storage |
+| Original SVG logo | Villa roof, tropical leaf and wave; scalable logo and favicon |
+| Node 26 LTS + npm | Build and test tooling; no runtime application server |
+| Node test runner | Pure date, capacity and contact validation tests |
+| Vitest + Testing Library + jsdom | Catalogue and rendered React interaction tests |
+| Prettier | Readable and consistent source formatting |
+| GitHub Actions | Run tests and production build on pushes and pull requests |
+| Vercel | Ready-to-import Vite configuration in `vercel.json` |
 
-Package versions resolved during setup are recorded exactly in `package-lock.json`. Use `npm ci` for reproducible installs. No `latest` dependency should be needed after the initial resolution.
+Exact dependency versions are committed in `package.json` and `package-lock.json`; use `npm ci` for reproducible installs. The Node 26.13.0 archive was verified against the official SHA-256 manifest. Node 25 is end-of-life; the project uses the supported Node 26 LTS branch. A clean dependency audit is a point-in-time check, not a guarantee against every vulnerability.
 
-Node 26.13.0 was selected after checking the official release lifecycle on 4 November 2026. Node 25 is end-of-life. Node 22 remains supported, but an old unpatched 22.16.0 runtime was rejected. The downloaded Node 26 archive was checked against the official SHA-256 manifest. A supported version and a clean audit reduce known risk; neither guarantees vulnerability-free software. Keep the runtime and lockfile patched.
+Official references: [Node release lifecycle](https://nodejs.org/en/about/previous-releases), [Node 26.13.0](https://nodejs.org/en/blog/release/v26.13.0), [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite), [Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
 
-References: [Node release lifecycle](https://nodejs.org/en/about/previous-releases), [26.13.0 LTS release](https://nodejs.org/en/blog/release/v26.13.0), [October security fixes](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+## What is implemented
 
-## Assessment coverage
-
-| Requirement | Implementation |
+| Assessment requirement | Where to find it |
 | --- | --- |
-| Homepage branding and navigation | Custom illustrated logo; Home, Explore Stays, About Us, Contact |
-| Large holiday accommodation banner | Full-width poolside image, island positioning and discovery heading |
-| Destination, dates and guest search | Search form on home and explore pages; date-order checks; capacity filtering |
-| At least six sample properties | Galle, Ella, Mirissa, Kandy, Colombo and Nuwara Eliya |
-| Listing data | Photo, name, destination, LKR price/night, capacity, property type and View Details |
-| Destination filtering | Working destination select and destination discovery links |
-| Property detail page | All six properties have their own route and three illustrative photographs |
-| Amenities, price and capacity | Detail descriptions, comfort lists, house rules and booking sidebar |
-| Booking request form | Name, email, contact number, dates, guests and submit button |
-| Validation and confirmation | Required inputs, name/email/phone rules, no past arrival, checkout after arrival, integer guest capacity; demo reference and price summary |
-| Mobile responsiveness | Navigation menu, adaptive card grids, stacked search and form, flexible gallery |
-| Footer contact and social links | Clearly marked sample email, Sri Lankan location and external social platform links |
-| Extra usability | Saved stays, price sorting, empty results, photo lightbox, not-found page |
+| Brand and logo | Original SVG in header, footer and favicon |
+| Home, Explore Stays, About Us, Contact | Shared responsive navigation |
+| Sri Lankan holiday accommodation banner | Homepage with authentic Sri Lankan coastal imagery |
+| Destination, check-in/out, guest search | Homepage and Explore search forms |
+| Six sample properties | Galle, Ella, Mirissa, Kandy, Colombo and Nuwara Eliya |
+| Photo, name, location, LKR price, capacity, type | Homepage property cards and listing result cards |
+| Destination filtering | Search select and homepage destination links |
+| Property details with three photos | Every property has a separate hash route and photo lightbox |
+| Description, amenities, capacity, price, dates | Property details and booking sidebar |
+| Request booking form | Guest name, email, phone, arrival, departure and guest count |
+| Validation and confirmation | Required fields plus calendar/date-order/capacity/contact rules; demo receipt |
+| Responsive layout | Mobile navigation, filter panel, adaptive grids and stacked forms |
+| Contact and social links | Clearly labelled sample contact and external social platform links |
+| Extra discovery features | Nightly budget, multiple property types, facilities, saved stays, price/rating sorting and empty results |
 
-All six cards appear with the initial default filters. Selecting a property type or guest count can narrow the collection. Date input does **not** filter live availability; this is intentionally outside the brief. Prices are illustrative nightly rates; the estimated total is nightly rate × nights, with no invented taxes or fees.
+Dates are used for request planning and total estimates, **not live availability filtering**. All prices, names, descriptions and review counts are fictional. Review scores are illustrative, not scraped guest reviews. Estimated totals are nightly rate × nights; no fabricated taxes or service fees are added.
 
-## Implementation steps and decisions
+## Implementation steps
 
-1. Read the entire supplied assignment and mapped the five tasks, technical constraints and deliverables.
-2. Confirmed the frontend-only scope using the explicit reservation database exemption. Chose a static build to keep evaluation simple and avoid credentials or unnecessary infrastructure.
-3. Checked the current Node lifecycle and security releases. Selected and pinned Node 26.13.0 LTS; verified the official archive checksum.
-4. Established the React / TypeScript / Vite project, npm scripts and strict TypeScript configuration.
-5. Designed the visual direction: forest green, warm ivory, restrained gold, expressive type, editorial spacing and large accommodation photography.
-6. Drew an original vector brand mark. The roof suggests a welcoming villa; the leaf evokes tropical nature; the wave connects it to the island. The same artwork is used for the favicon.
-7. Created six fictional, typed property records across the requested Sri Lankan destinations, with prices, capacity, amenities and imagery.
-8. Built the homepage, shared navigation, footer, destination discovery, and About and Contact pages.
-9. Built the listing view with destination, property type, capacity, saved-state filtering, price sorting and useful empty results.
-10. Built individual detail views, three-photo galleries and an enlarging photo dialog.
-11. Built the booking request dialog with shared stay state, nightly totals and independent domain validation. Success displays a clearly labelled demo confirmation.
-12. Added optional local storage for saved **property IDs only**. Guest names, email addresses, contact numbers and requests are never stored or transmitted.
-13. Added keyboard focus styles, labelled inputs, native dialog focus trapping, Escape dismissal, focus restoration, a skip link, meaningful image alternatives and reduced-motion support.
-14. Added responsive rules for desktop, tablet and mobile; kept touch targets and long forms usable on narrow screens.
-15. Added automated validation tests, production build checks and deployment configuration. See verification notes for actual results and remaining checks.
-16. Documented setup, scope, limitations, image sources, AI assistance, commercial improvements and the submission checklist.
+1. Read the complete assignment and mapped each task and deliverable into the prototype scope.
+2. Confirmed that a frontend implementation satisfies the explicit database, payment and inventory exemptions.
+3. Selected React, TypeScript and Vite; verified the current Node lifecycle and pinned Node 26.13.0 LTS.
+4. Created an original villa / leaf / wave SVG mark. Updated it to the blue, white and warm-yellow visual system.
+5. Structured six fictional properties with locations, nightly prices, capacity, descriptions, facilities and three photos each.
+6. Built the homepage, original branding, shared navigation, footer, About and Contact pages.
+7. Reworked the design toward Booking.com-style booking UX: navy header, strong search, yellow search outline, destination tiles, filter sidebar and horizontal result cards. No Booking.com logo, proprietary UI assets or backend are used.
+8. Researched real Sri Lankan photographs on Wikimedia Commons; checked reusable licences; downloaded assets and recorded creators, original subjects, sources and display modifications.
+9. Built destination and guest search, nightly budget, type/facility filters, sorting and empty-result recovery using a pure catalogue selector.
+10. Added optional saved property IDs in local storage with corrupt/blocked-storage recovery. No guest details are stored there.
+11. Built all six detail routes, three-photo galleries, amenities, house rules and booking sidebars.
+12. Built the booking dialog, shared stay state, date and guest checks, phone/email/name validation, nightly estimates and clear demo confirmation.
+13. Improved validation to reject impossible ISO calendar dates such as 30 February, rather than accepting JavaScript's normalized dates.
+14. Added native dialog semantics, Escape dismissal, focus restoration, visible labels, error/status announcements, a skip link and reduced-motion support.
+15. Adapted layouts for narrow phones, tablets and desktop. Added a collapsible mobile filter panel and mobile navigation.
+16. Wrote automated business-rule, catalogue, React interaction and local asset tests. Tests caught a route parsing regression during the redesign; it was corrected before delivery.
+17. Added `vercel.json`, `.vercelignore`, GitHub CI and reproducible install instructions. The preview platform is optional; the app has no dependency on Sites APIs.
+18. Formatted source, ran tests and the production build, performed browser checks, and recorded actual results in `TESTING.md`.
 
 ## Project structure
 
 ```text
-public/
-  logo.svg          Original logo and favicon
-  _headers          Headers supported by compatible static hosts
 src/
-  main.tsx          React application entry
-  App.tsx           Page views, reusable dialogs, search and booking state
-  data.ts           Typed fictional accommodation catalogue
-  booking.mjs       Pure date, guest and contact rules shared with tests
-  styles.css        Design tokens, layouts and responsive styling
+  main.tsx          React mount point
+  App.tsx           Pages, search, filters, result cards and application state
+  BookingModal.tsx  Native dialog wrapper and booking request flow
+  catalogue.ts      Pure combined filtering and sorting logic
+  booking.mjs       Pure calendar, stay and contact validation
+  data.ts           Typed fictional property catalogue
+  types.ts          Shared stay type
+  styles.css        Visual system and responsive layouts
 tests/
-  booking.test.mjs  Domain validation tests
-index.html          Metadata and application entry
-vite.config.ts      React build configuration
-netlify.toml        Static hosting build settings
-.nvmrc              Node version pin
+  booking.test.mjs  Date, capacity and guest contact rules
+  catalogue.test.ts Filtering, sorting and catalogue immutability
+  app.test.tsx      Rendered React interactions and booking flow
+  assets.test.ts    Local photo and deployment config checks
+  setup.ts         DOM test setup; native dialog methods are mocked in jsdom
+public/
+  logo.svg          Original vector logo
+  images/srilanka/  Authentic Sri Lankan photography and licence metadata
+  images/SRI-LANKA-SOURCES.md
+.github/workflows/ci.yml
+vercel.json
+README.md
+TESTING.md
 ```
 
-Routes use URL hashes (`#/`, `#/explore`, `#/stays/palm-house`, `#/about`, `#/contact`). This makes direct property links and refreshes work on ordinary static hosting without rewrite configuration. A commercial site should adopt a proper route library and server-rendered property pages for SEO.
+Routes use hashes: `#/`, `#/explore`, `#/stays/palm-house`, `#/about`, `#/contact`. This allows direct detail links and reloads on static hosts without rewrite rules. A commercial implementation should use a route library and server rendering for property SEO.
 
-## Branding and images
+## Put it on GitHub
 
-The logo is original SVG artwork, not a text-only placeholder or a third-party logo. SVG is used because the mark must stay sharp at header and favicon sizes and remain easy to edit.
+Create an empty GitHub repository, then open a terminal in this project. If the local repository already exists (as in the original development workspace), commit your current source and add your GitHub repository as a separate remote:
 
-Photos were downloaded from Unsplash's image CDN and are bundled in `public/images/` for reliable evaluation. They are stock mood references, **not verified photos of the fictional Sri Lankan properties**. Source URLs are recorded in `public/images/SOURCES.md`; captions and the About page disclose the illustrative use. Before commercial use, replace them with property-owner-approved photography and record the exact creator, source and licence for each image. [Unsplash licence](https://unsplash.com/license).
+```sh
+git status
+git add .
+git commit -m "Build Lanka Stayz accommodation prototype"
+git remote add github https://github.com/YOUR_USERNAME/lanka-stayz.git
+git push -u github main
+```
 
-Typefaces: DM Sans and Manrope via Google Fonts, with system and Georgia fallbacks. Icons: Lucide (ISC licence). External font loading requires an internet connection; the photos are served locally. Social links lead to the public Instagram and Facebook platforms; no official brand profiles have been invented. The `.example` contact address is reserved demonstration information and will not deliver mail.
+If `github` is already configured, inspect `git remote -v` and use the existing correct remote. For a fresh extracted ZIP, run `git init -b main` before these commands. GitHub authentication is handled by your Git installation or credential manager; never put a token in project files or a remote URL.
 
-## Accessibility and privacy
+Do not include `.tools`, `node_modules`, `outputs`, `.env` secrets or local credentials. `.gitignore` excludes generated files; `.openai/hosting.json` contains only a preview project identifier, not credentials. The app works without it on Vercel.
 
-The booking and photo dialogs use the native `<dialog>` element for modal semantics, focus containment and keyboard support. Closing restores focus to the invoking control. Validation errors are announced and focused; confirmations are live status regions. Inputs have visible labels, and buttons have accessible names. Favourite buttons expose pressed state. Responsive layouts and motion preferences are handled in CSS.
+## Publish on Vercel
 
-The site does not use analytics, cookies, tracking SDKs, authentication or payment collection. Only saved property IDs go into local storage; private browsing/storage failures are handled. Form values exist in memory until the dialog closes. External fonts create normal requests to their provider. A production version needs a privacy notice and a decision about self-hosting fonts.
+1. Push the source and lockfile to your GitHub repository.
+2. In Vercel, choose **Add New → Project** and import that repository.
+3. Select **Vite**, project root `.`, install command `npm ci`, build command `npm run build`, output directory `dist`.
+4. Use Node **26.x**. Vercel currently supports it and automatically applies patch updates; `.nvmrc` pins the locally verified version.
+5. No environment variables, database or server functions are required. Deploy.
+6. Open the resulting URL in a signed-out/incognito window. Disable Vercel Deployment Protection for the submission deployment if it requests authentication; verify the production URL is accessible to the interviewer.
+7. Test a direct link such as `https://YOUR_PROJECT.vercel.app/#/stays/palm-house` and refresh it.
 
-## Deployment and submission
+`vercel.json` contains the static build settings and supported security headers. There is no catch-all rewrite because hash routing does not require one. `.vercelignore` excludes the original preview platform metadata and local tools. The included GitHub Actions workflow tests/builds the source; Vercel's Git integration handles deployment separately.
 
-The production output is the `dist/` directory. Deploy it on a static host such as Netlify, Cloudflare Pages or Vercel. Use the build command `npm run build`, output directory `dist`, and Node 26.13.0 where supported. If a host has not yet added Node 26, build locally with the pinned version and upload `dist/` rather than silently changing the project runtime.
+The chat has prepared this configuration but has not created a repository or deployed into your personal GitHub/Vercel account.
 
-For Netlify, the repository includes `netlify.toml`. You can also run `npm ci && npm run build` locally and upload `dist/` using the host's static deploy interface. Hash routing requires no SPA rewrite. `_headers` is applied only on hosts that support that file format.
+## Photos, branding and licences
 
-Do not submit an owner-private preview URL as the public demo. Confirm the final URL works in an incognito window without sign-in. Do not put `.tools/`, `node_modules/`, temporary files or credentials in a source ZIP. Include the lockfile and README. This chat has not sent any recruitment email.
+The current UI uses photographs of **real Sri Lankan places**: southern coastal hotels and architecture, Ella hill-country accommodation, Kandy, Colombo/Mount Lavinia and Nuwara Eliya. They are reused under the licences recorded in [the photo credits](public/images/SRI-LANKA-SOURCES.md) and `public/images/srilanka/metadata.json`. A public visual credits page is linked in the footer. Credits name the actual photographed places; the fictional listings are not affiliations or verified offers from those hotels.
 
-Submission deadline in the supplied assignment: **7 November 2026, 12:00 noon**. Confirm the timezone with the recruiter if needed.
+Only Wikimedia thumbnail resizing and CSS display cropping were applied. Each photograph retains its original CC licence, including attribution/share-alike where applicable. Keep the credits with redistributed assets. For a real platform, replace this inspiration collection with approved photos of each actual property.
 
-## Development summary
+The original logo uses a villa roof for hospitality, a leaf for tropical nature and a wave for the island. SVG keeps it sharp at favicon and header sizes. Lucide icons use the ISC licence. DM Sans and Manrope load through Google Fonts with system fallbacks; all photos are local. The `.example` contact address is demonstration-only. Social links lead to the public platforms; no official profiles have been invented.
 
-The prototype emphasizes the complete discovery-to-request journey and an original visual identity. Structured sample data powers all property views, while pure booking rules keep validation explainable and testable. Static deployment avoids infrastructure that the assignment explicitly does not require. Added features support discovery without expanding into a commercial reservation system.
+## Testing, accessibility and privacy
 
-For a full commercial product I would add a backend API and relational database for properties, hosts, inventory and booking requests; server-side validation; transactional availability checks; email delivery; request idempotency; staff administration; role-based authentication; rate limiting and spam controls. Payments would use a provider-hosted checkout with verified webhooks. Further work would include a property CMS, licensed photography, server rendering/SEO, localization, actual location maps, pricing/tax policies, cancellation workflows, monitoring, automated accessibility checks and end-to-end tests in CI.
+See **[TESTING.md](TESTING.md)** for cases, results, browser checks and limits. jsdom tests validate component behaviour but cannot certify real browser layout, image decoding, native date pickers or focus trapping; those need browser verification as well.
+
+Dialogs use native `<dialog>` semantics and focus management. Inputs have visible labels, favourites expose pressed state, errors/status messages are announced, keyboard focus is visible and reduced motion is respected. These measures are not a formal accessibility certification.
+
+No analytics, cookies, login or payment collection are included. Local storage contains saved **property IDs only**. Guest details live in component memory until the booking dialog closes. Fonts make ordinary external requests to Google; photos are bundled locally. A production version needs a privacy notice and a considered consent/data-retention policy.
+
+## Development summary and commercial improvements
+
+The prototype delivers a complete discovery-to-request journey with a Sri Lankan visual identity. Typed data powers every view, pure business rules make validation testable, and a static build keeps reviewer access simple. Booking-site conventions make filtering and comparison familiar while preserving honest demo boundaries.
+
+A commercial version would add a server API and relational database for inventory, pricing, guests, hosts and reservations; server-side validation; transactional availability checks; idempotent request handling; host administration; email notifications; authentication/authorization; abuse protection and rate limiting. Payments would use a provider-hosted checkout with verified webhooks. Other priorities include licensed owner photography, SEO/server rendering, localization, actual maps, taxes/cancellation policies, monitoring and cross-browser accessibility/end-to-end tests in CI.
 
 ## AI assistance disclosure
 
-This project was created with substantial AI assistance using OpenAI Codex for assignment analysis, design direction, SVG branding, implementation, tests and documentation. The candidate should review every file, personalize the result, and be prepared to explain or modify it during the interview. No claim is made that this was written without AI assistance.
+OpenAI Codex substantially assisted with requirement analysis, design, SVG branding, source implementation, image research, tests and documentation. The candidate should review and personalize the code, understand every decision and be prepared to modify it during the interview. The project does not claim to be written without AI assistance.
 
-Suggested interview walkthrough: explain why no backend is required; trace `properties` into listing/detail views; demonstrate filtering and saving; open a request; show invalid dates and capacity enforcement; explain the distinction between a demo confirmation and a persisted reservation; describe how a real API would replace the final submit action.
+Suggested interview walkthrough: explain the brief's backend exemption; trace `data.ts` through `selectProperties` into results/detail views; demonstrate filters and saved stays; submit invalid and valid dates; show the tests; explain why the confirmation does not represent a persisted reservation; identify the submit handler as the future API boundary.
 
-## Verification and limitations
-
-Verified on 4 November 2026 using Node 26.13.0:
-
-- `npm run build`: TypeScript check and optimized Vite production build passed.
-- `npm test`: all five domain validation tests passed (date arithmetic, invalid date ordering/past dates, guest capacity, guest contact rules, date format).
-- Dependency installation audit: zero known vulnerabilities across the installed dependency tree.
-- Browser: six default listings rendered; selecting Galle returned The Palm House; saving a stay updated the saved count; property details opened the request dialog.
-- Browser: a valid three-night request for The Palm House displayed a demo confirmation and LKR 126,000 estimate. Browser testing found and fixed date input event handling.
-- Browser: mobile navigation opened and linked correctly; page width did not exceed the viewport at 390px mobile and 768px tablet widths.
-- Local logo and hero image loaded successfully after bundling stock photos.
-
-These are focused checks, not a full accessibility certification or exhaustive cross-browser test suite. Intentional exclusions: live inventory, payments, accounts, database, email delivery and real reservations. All accommodation content and review counts are sample data. The public hosting and repository submission must be verified separately from local functionality.
+Submission deadline in the supplied assessment: **7 November 2026, 12:00 noon**. Submit the public production URL, GitHub repository or source ZIP, this README and the development summary. No recruitment email has been sent by this chat.
