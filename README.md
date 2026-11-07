@@ -2,7 +2,7 @@
 
 A Sri Lankan accommodation discovery prototype for the Xero Lanka / Lanka Stayz Web Developer Practical Technical Assessment. The approved tropical editorial design uses warm ivory, deep teal and coral, expressive serif headings, an arched Sri Lankan hero photograph and original branding. Familiar search/filter behaviours support a distinctive Lanka Stayz experience.
 
-Live demo: **https://lanka-stayz-island-escapes.resolutedace.chatgpt.site**
+Live demo: [Lanka Stayz on Vercel](https://lanka-stayz-sooty.vercel.app)
 
 ## Does this assignment require a backend?
 
@@ -175,7 +175,7 @@ Do not include `.tools`, `node_modules`, `outputs`, `.env` secrets or local cred
 
 `vercel.json` contains the static build settings and supported security headers. There is no catch-all rewrite because hash routing does not require one. `.vercelignore` excludes the original preview platform metadata and local tools. The included GitHub Actions workflow tests/builds the source; Vercel's Git integration handles deployment separately.
 
-The chat has prepared this configuration but has not created a repository or deployed into your personal GitHub/Vercel account.
+The assessment source is published on [GitHub](https://github.com/PasinduMaduwantha/lanka-stayz) and the demo is deployed publicly on Vercel.
 
 ## Photos, branding and licences
 

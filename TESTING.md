@@ -50,7 +50,7 @@ Final results:
 - **Assets:** every displayed photograph has a local file plus creator/source/reusable-licence metadata. Credits page contains no blank records.
 - **Approved-theme browser checks:** two-property comparison; Palm House three-night request at LKR 126,000; traveller request page; host acceptance; create a listing draft; Google button disclosure; narrow-phone header and home layout without overflow. Host drafts and requests are explicitly session-only and do not represent a secure backend service.
 
-GitHub Actions and a personal Vercel deployment are prepared, not executed in the user's accounts.
+The Vercel production deployment was verified on 7 November 2026. The public homepage and its JavaScript and CSS assets returned HTTP 200 without signing in.
 
 ## Regression issues caught and fixed
 
@@ -65,4 +65,4 @@ GitHub Actions and a personal Vercel deployment are prepared, not executed in th
 
 ## Verification limits
 
-No test proves absence of all defects. jsdom mocks `showModal()` / `close()` and does not implement real layout, date pickers or native focus containment; the real-browser checks complement it. This is not a formal accessibility audit or an exhaustive Safari/Firefox/physical-device test. GitHub Actions is configured but cannot be reported as passed until it runs in the user's repository. Vercel configuration is checked locally; a deployment into the user's Vercel account has not been performed. No live availability, email, payment, database or real reservation is tested because those features are explicitly outside the assessment scope.
+No test proves absence of all defects. jsdom mocks `showModal()` / `close()` and does not implement real layout, date pickers or native focus containment; the real-browser checks complement it. This is not a formal accessibility audit or an exhaustive Safari/Firefox/physical-device test. The automated results above are from local runs. Live availability, email, payments, a database and real reservations are outside the assessment scope.
